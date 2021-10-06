@@ -30,7 +30,7 @@ type Context = [(Identifier, LangType)]
 
 
 
-data Expr  = Double Double  | Int Int | String Text  | Op Identifier [Expr]
+data Expr  = Double Double  | Int Int | String Text  | Op Identifier Expr Expr
   | StructExpr Struct
   | Declaration Identifier (Maybe LangType)
   | Assign Identifier Expr

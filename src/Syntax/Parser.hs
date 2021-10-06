@@ -1,11 +1,19 @@
 {-# LANGUAGE  OverloadedStrings #-}
 module Syntax.Parser where
 
-import Lexer
+import Syntax.Lexer
 import Text.Megaparsec
 import Text.Megaparsec.Char
 
-import AST
+import Syntax.AST
+
+data TypeCheckError =  
+    TypeCheckError 
+    { expectedType :: Type 
+    , actualType :: Type
+    }
+
+type Parser = ParsecT TypeCheckError Text (StateT Context)
 
 expr :: Parser Expr
 expr = try structExpr <|> try assignExpr <|> try block <|> try functionExpr <|> try callExpr <|> parens expr
@@ -46,3 +54,15 @@ block = Block <$> braces (try ((++) <$> many expr <*> ((: []) <$> expr)) <|> pur
 functionExpr :: Parser Expr
 functionExpr = string "fn" 
     *> space1 *> (Function <$> identifier <* space1 <*> parens (typeSignature) <* space <*> (try (Just <$ char ':' <*  spaces <*> langType) <|> pure Nothing) <*>  block)
+
+assertType :: LangType -> LangType -> Parser ()
+assertType = undefined 
+
+checkExpr :: Expr -> Parser (Expr,Type)
+checkExpr (Function name types returnType blocks = do
+    ctx <- gets
+    puts (ctx++types)
+    mapM checkExpr blocks
+    lastType <- gets last
+    
+    
